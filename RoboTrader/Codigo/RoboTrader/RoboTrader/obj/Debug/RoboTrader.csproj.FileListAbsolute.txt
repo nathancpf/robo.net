@@ -1,0 +1,6 @@
+c:\users\andre\onedrive\documents\visual studio 2015\Projects\RoboTrader\RoboTrader\bin\Debug\RoboTrader.exe.config
+c:\users\andre\onedrive\documents\visual studio 2015\Projects\RoboTrader\RoboTrader\bin\Debug\RoboTrader.exe
+c:\users\andre\onedrive\documents\visual studio 2015\Projects\RoboTrader\RoboTrader\bin\Debug\RoboTrader.pdb
+c:\users\andre\onedrive\documents\visual studio 2015\Projects\RoboTrader\RoboTrader\obj\Debug\RoboTrader.csprojResolveAssemblyReference.cache
+c:\users\andre\onedrive\documents\visual studio 2015\Projects\RoboTrader\RoboTrader\obj\Debug\RoboTrader.exe
+c:\users\andre\onedrive\documents\visual studio 2015\Projects\RoboTrader\RoboTrader\obj\Debug\RoboTrader.pdb
