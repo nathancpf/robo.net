@@ -13,7 +13,11 @@ using System.Collections;
 namespace RoboTrader
 {
 
-
+    ///<summary>
+    ///Este robo monitora as ordens criadas pelo usuário no site. 
+    ///Caso seja executadas, cria a ordem inversa (compra ou venda),
+    ///com objetivo de ter lucro.
+    ///</summary>
 
 
     public class RoboTrader2
