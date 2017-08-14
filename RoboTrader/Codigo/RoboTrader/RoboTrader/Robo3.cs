@@ -6,6 +6,12 @@ using System.Threading.Tasks;
 
 namespace RoboTrader
 {
+    ///<summary>
+    ///Este robo cria ordem de compra e venda baseado
+    ///no dolar comercial * bitstamp * porcentagem definiada pelo usuário
+    ///Se executadas, cria ordem inversa (compra ou venda) novamente
+    ///</summary>
+   
     public class Robo3
     {
 
@@ -16,8 +22,7 @@ namespace RoboTrader
 
         private APIWrapper api;
 
-        //Cria ordem de compra e venda baseado no dolar
-        //Se executadas, cria ordem inversa e ordem dolar novamente
+        
         public Robo3()
         {
             Console.WriteLine("Robo v3 is alive!");
