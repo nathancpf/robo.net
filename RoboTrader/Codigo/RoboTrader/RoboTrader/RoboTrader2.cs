@@ -135,6 +135,11 @@ namespace RoboTrader
             Console.WriteLine("Buscando ordens pendentes...");
             OrderList orderList = api.obterOrdensPendentes();
             //ListaOrdem.Clear();
+            if (orderList == null || orderList.oReturn == null || orderList.oReturn.Count == 0)
+            {
+                
+                throw new Exception("Atenção, não foi encontrado ordens pendentes. Crie primeiro uma ordem de compra e uma ordem de venda manualmente no site da Bitcointoyou");
+            }
             foreach (Ordem ordem in orderList.oReturn)
             {
                 bool add = true;

@@ -93,7 +93,7 @@ namespace RoboTrader
                 string fullname = criarArquivo(nomeArquivo);
                 StreamWriter sw = new StreamWriter(fullname);
                 sw.WriteLine(dados);
-                sw.Close();                
+                sw.Close();
             }
             catch (Exception e)
             {
@@ -120,7 +120,25 @@ namespace RoboTrader
                 log(e.Message);
                 return e.Message;
             }
-            
+
+        }
+
+        private string obterArquivoGenericoGlobal(string nomeArquivo)
+        {
+            try
+            {
+                string fullname = criarArquivoGlobal(nomeArquivo);
+                StreamReader sr = new StreamReader(fullname);
+                string line = sr.ReadLine();
+                sr.Close();
+                return line;
+            }
+            catch (Exception e)
+            {
+                log(e.Message);
+                return e.Message;
+            }
+
         }
         private void salvarSaldoLocal()
         {
@@ -133,7 +151,7 @@ namespace RoboTrader
             salvarArquivoGenerico(sr.ReadToEnd(), "SALDO");
 
         }
-        
+
         private void debitarSaldoBRL(decimal valorBRL)
         {
             this.saldo.saldoBRL = this.saldo.saldoBRL - valorBRL;
@@ -146,15 +164,30 @@ namespace RoboTrader
             salvarSaldoLocal();
         }
 
-        
+
 
         private void obterParametrosLocal()
         {
             string dados = obterArquivoGenerico(Constantes.NOME_PARAMETROS);
-            DataContractJsonSerializer js = new DataContractJsonSerializer(typeof(Parametros));
-            MemoryStream ms = new MemoryStream(System.Text.ASCIIEncoding.ASCII.GetBytes(dados));
-            parametros = (Parametros)js.ReadObject(ms);
-            ms.Close();
+            if (string.IsNullOrWhiteSpace(dados))
+            {
+                parametros = new Parametros();
+                Console.WriteLine("Copie e cole aqui sua chave API obtida no site da Bitcointoyou, menu API:");
+                parametros.chaveAPI = Console.ReadLine();
+                Console.WriteLine("Copie e cole aqui sua chave SECRETA obtida no site da Bitcointoyou, menu API:");
+                parametros.chaveSecreta = Console.ReadLine();
+                salvarParametros(parametros);
+                inicializarAPI();
+            }
+            else
+            {
+                DataContractJsonSerializer js = new DataContractJsonSerializer(typeof(Parametros));
+                MemoryStream ms = new MemoryStream(System.Text.ASCIIEncoding.ASCII.GetBytes(dados));
+                parametros = (Parametros)js.ReadObject(ms);
+                ms.Close();
+
+            }
+
 
         }
 
@@ -164,12 +197,21 @@ namespace RoboTrader
             try
             {
                 line = obterArquivoGenerico("SALDO");
-                
-                DataContractJsonSerializer js = new DataContractJsonSerializer(typeof(SaldoB2U));
-                MemoryStream ms = new MemoryStream(System.Text.ASCIIEncoding.ASCII.GetBytes(line));
-                this.saldo = (SaldoB2U)js.ReadObject(ms);
 
-                ms.Close();
+
+                if (string.IsNullOrWhiteSpace(line))
+                {
+                    saldo = new SaldoB2U();
+                    salvarSaldoLocal();
+                }
+                else
+                {
+                    DataContractJsonSerializer js = new DataContractJsonSerializer(typeof(SaldoB2U));
+                    MemoryStream ms = new MemoryStream(System.Text.ASCIIEncoding.ASCII.GetBytes(line));
+                    this.saldo = (SaldoB2U)js.ReadObject(ms);
+
+                    ms.Close();
+                }
 
             }
             catch (Exception e)
@@ -182,6 +224,21 @@ namespace RoboTrader
             {
 
             }
+        }
+
+        public void inicializarAPI()
+        {
+            string nonce = obterNonce();
+            string balanco = getBalance(parametros.chaveAPI, nonce, gerarAssinatura(nonce));
+
+            MemoryStream stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(balanco));
+
+            DataContractJsonSerializer js = new DataContractJsonSerializer(typeof(Balance));
+            MemoryStream ms = new MemoryStream(System.Text.ASCIIEncoding.ASCII.GetBytes(balanco));
+
+            Balance balance = (Balance)js.ReadObject(ms);
+
+            
         }
         public decimal obterSaldoDisponivelBRL()
         {
@@ -229,19 +286,29 @@ namespace RoboTrader
 
         public string obterNonce()
         {
+            
             String line;
             try
             {
                 line = obterArquivoGenerico("nonce");
-               
 
-                string nonce = line;
-                
-                int iNonce = Convert.ToInt32(nonce);
-                nonce = "" + (iNonce + 1);
-                salvarArquivoGenerico(nonce, "nonce");
-                
-                return nonce;
+                if (string.IsNullOrWhiteSpace(line))
+                {
+                    string nonce = "" + new Random().Next();
+                    int iNonce = Convert.ToInt32(nonce);
+                    
+                    salvarArquivoGenerico(nonce, "nonce");                    
+                    //nonce = "" + (iNonce + 1);
+                    return nonce;
+                }
+                else
+                {
+                    string nonce = line;
+                    int iNonce = Convert.ToInt32(nonce);
+                    nonce = "" + (iNonce + 1);
+                    salvarArquivoGenerico(nonce, "nonce");
+                    return nonce;
+                }
             }
             catch (Exception e)
             {
@@ -255,12 +322,13 @@ namespace RoboTrader
             }
         }
 
-        
+
         private string criarArquivo(string nomeArquivo)
         {
             try
             {
                 String path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/RoboB2U/";
+                //string fileName = NomeRobo + "_" + nomeArquivo + ".txt";
                 string fileName = NomeRobo + "_" + nomeArquivo + ".txt";
 
                 if (!Directory.Exists(path))
@@ -282,7 +350,37 @@ namespace RoboTrader
 
                 throw e;
             }
-           
+
+        }
+
+        private string criarArquivoGlobal(string nomeArquivo)
+        {
+            try
+            {
+                String path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/RoboB2U/";
+                //string fileName = NomeRobo + "_" + nomeArquivo + ".txt";
+                string fileName = nomeArquivo + ".txt";
+
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                if (!File.Exists(path + fileName))
+                {
+
+                    File.WriteAllText(path + fileName, String.Empty);
+                }
+
+                return path + fileName;
+
+
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
+
         }
 
         public void log(string msg)
@@ -290,14 +388,14 @@ namespace RoboTrader
             try
             {
                 string fullname = criarArquivo("log");
-                StreamWriter sw = new StreamWriter(fullname);                
-                sw.WriteLine(msg);                
+                StreamWriter sw = new StreamWriter(fullname);
+                sw.WriteLine(msg);
                 sw.Close();
             }
             catch (Exception e)
             {
                 throw e;
-            }            
+            }
         }
 
 
@@ -330,6 +428,7 @@ namespace RoboTrader
         {
             Console.WriteLine("saldo: " + saldo.saldoBRL + ", valor ordem: " + quantidade * preco);
 
+            
             if (saldo.saldoBRL >= quantidade * preco)
             {
 
@@ -374,6 +473,7 @@ namespace RoboTrader
 
         public OrderList criarOrdemCompra(decimal quantidade, decimal preco, string tipo)
         {
+           
 
             if (saldo.saldoBRL >= 0)
             {
@@ -384,36 +484,46 @@ namespace RoboTrader
                 string nonce = obterNonce();
                 string retorno = CreateOrder(parametros.chaveAPI, nonce, gerarAssinatura(nonce), "BTC", "buy", quantidade, preco);
 
-
-                DataContractJsonSerializer js = new DataContractJsonSerializer(typeof(OrderList));
-                MemoryStream ms = new MemoryStream(System.Text.ASCIIEncoding.ASCII.GetBytes(retorno));
-                OrderList orderList = (OrderList)js.ReadObject(ms);
-                ms.Close();
-
-
-
-
-
-                if (orderList.success == "1")
+                if (!retorno.Contains("error"))
                 {
-                    foreach (Ordem ordem in orderList.oReturn)
+
+                    DataContractJsonSerializer js = new DataContractJsonSerializer(typeof(OrderList));
+                    MemoryStream ms = new MemoryStream(System.Text.ASCIIEncoding.ASCII.GetBytes(retorno));
+                    OrderList orderList = (OrderList)js.ReadObject(ms);
+                    ms.Close();
+
+                    if (orderList.success == "1")
                     {
-                        ordem.tipoRobo = tipo;
-                        imprimirOrdem("Ordem criada", ordem);
+                        foreach (Ordem ordem in orderList.oReturn)
+                        {
+                            ordem.tipoRobo = tipo;
+                            imprimirOrdem("Ordem criada", ordem);
+                        }
+
+                        armazenarOrderList(orderList);
+
+                        debitarSaldoBRL(quantidade * preco);
+
+                        Console.WriteLine("Saldo.saldoBRL: " + saldo.saldoBRL);
+
+                        return orderList;
                     }
-
-                    armazenarOrderList(orderList);
-
-                    debitarSaldoBRL(quantidade * preco);
-
-                    Console.WriteLine("Saldo.saldoBRL: " + saldo.saldoBRL);
+                    else
+                    {
+                        throw new Exception("Erro ao criar ordem de compra: " + retorno);
+                    }
                 }
                 else
                 {
-                    throw new Exception("Erro ao criar ordem de compra: " + retorno);
+                    throw new Exception("Falha ao criar ordem: " + retorno);
                 }
 
-                return orderList;
+
+
+
+                
+
+                
             }
             else
             {
@@ -456,21 +566,16 @@ namespace RoboTrader
             StreamReader sr = new StreamReader(stream1);
             salvarArquivoGenerico(sr.ReadToEnd(), "orderList");
         }
+
+
         
-
-
-
-        public static MemoryStream GenerateStreamFromString(string value)
-        {
-            return new MemoryStream(Encoding.UTF8.GetBytes(value ?? ""));
-        }
 
         public string obterOrdensLocais()
         {
             String line;
             try
             {
-                line = obterArquivoGenerico("orderList");                
+                line = obterArquivoGenerico("orderList");
                 return line;
             }
             catch (Exception e)
@@ -716,7 +821,7 @@ namespace RoboTrader
 
         private string gerarAssinatura(string nonce)
         {
-            System.Threading.Thread.Sleep(4000);
+            System.Threading.Thread.Sleep(1500);
             return CreateToken(nonce + parametros.chaveAPI, parametros.chaveSecreta);
         }
 

@@ -42,20 +42,7 @@ namespace RoboTrader
 
         [DataMember]
         public string chaveSecreta = "";//secret
-
-        public string ChaveAPI
-        {
-            get
-            {
-                return chaveAPI;
-            }
-
-            set
-            {
-                chaveAPI = value;
-            }
-        }
-
+        
         public double obterQuantidadeOrdem()
         {
             return Convert.ToDouble(quantidadeOrdem);
