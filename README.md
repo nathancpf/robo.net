@@ -20,6 +20,7 @@ ROBO_V2_SALDO.txt
 ROBO_V2_parametros.txt
 
 Início
+
 Você deve criar a primeira ordem de compra e primeira ordem de venda manualmente no site da Bitcointoyou. A partir disto o robo começará a monitorá-las e revender ou recomprar ao serem executadas (lembre-se que a quantidade da ordem deve ser inferior ou igual ao parametro quantidadeMaxima definido no arquivo parametros)
 
 Parametros customizáveis
