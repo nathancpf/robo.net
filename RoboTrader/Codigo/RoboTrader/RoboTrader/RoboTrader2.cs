@@ -144,7 +144,7 @@ namespace RoboTrader
             {
                 bool add = true;
 
-                if (ordem.status == Constantes.STATUS_ORDEM_PENDENTE &&
+                if (ordem.status.ToUpper().Trim() == Constantes.STATUS_ORDEM_PENDENTE &&
                    Convert.ToDecimal(ordem.amount) <= api.parametros.quantidadeMaxima)
                 {
                     foreach (Ordem cOrdem in ListaOrdem)
