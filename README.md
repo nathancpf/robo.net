@@ -55,3 +55,8 @@ Caso tenha dúvidas, envie um e-mail para sac@bitcointoyou.com
 Faremos eventualmente webinar da Bitcointoyou, você poderá perguntar a um especialista ao vivo.
 
 ATENÇÃO: A Bitcointoyou não se responsabilisa pelo uso deste robô. Não há garantia de lucro do investimento ao utilizá-lo. Você é o único responsável pelo risco e possíveis perdas de capital. 
+
+Geração de chaves para API: https://broker.bitcointoyou.com/TradeAPI/Index
+
+Documentação API: https://docs.google.com/document/d/1dIaSkY3oRDyrWVyJsd_tltV2HkXPvOiO3mXnVD_ZxI4/edit?usp=sharing
+
